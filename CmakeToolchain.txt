@@ -87,8 +87,8 @@ set (CMAKE_EXE_LINKER_FLAGS
 #    DEBUG SYMBOLS FLAGS
 #*****************************************************************************
 
-#set (OPTIMIZ_FLAGS  "-Os -g3")
-set (OPTIMIZ_FLAGS  "-Os ")
+set (OPTIMIZ_FLAGS  "-Os -g3")
+#set (OPTIMIZ_FLAGS  "-Os ")
 
 #*****************************************************************************
 #    C-Compiler Flags
