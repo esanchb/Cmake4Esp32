@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.00)
 
 set(POJECT_NAME ArduinoExample)
 
-set ( CMAKE_TOOLCHAIN_FILE CmakeToolchain.txt)
+set ( CMAKE_TOOLCHAIN_FILE          CmakeToolchain.txt)
 # set the project name
 project(${POJECT_NAME})
 
@@ -12,19 +12,37 @@ project(${POJECT_NAME})
 
 
 
+if(CMAKE_ESP_DEFINITION_DONE MATCHES "DISABLED")
+    message(FATAL_ERROR,"*********************** !!! Board Not supported ,or not defined !!!!  :( !!!  ")
+else()
+    message(INFO " ")
+    message(INFO " ******************************************************************************************************************************************************* " )
+    message(INFO " ******************************************************************************************************************************************************* " )
+    message(INFO " ** SYSTEM_NAME            =" ${CMAKE_SYSTEM_NAME})
+    message(INFO " ** PROCESSOR_NAME         =" ${CMAKE_SYSTEM_PROCESSOR})
+    message(INFO " **<<<<<<<<<<<<<<<<<<<<<  BOARD SETTINGS & PROGRAMMER >>>>>>>>>>>>>>>>>>>>>>>>> ")
+    message(INFO " ** BoardDetected          =" ${CMAKE_SYSTEM_BOARD})
+    message(INFO " ** Boot Binary            =" ${ESP_BOOT_BIN})
+    message(INFO " ** Bootloader             =" ${ESP_BL_BIN})
+    message(INFO " ** Programmber BaudRate   =" ${ESP_P_BRATE})
+    message(INFO " **<<<<<<<<<<<<<<<<<<<<<  TOOLCHAIN INFO >>>>>>>>>>>>>>>>>>>>>>>>> ")
+    message(INFO " ** TOOLCHAIN_PATH         =" ${ESP32_TOOLCHAIN_PATH})
+    message(INFO " ** C_COMPILER             =" ${CMAKE_C_COMPILER})
+    message(INFO " ** CXX_COMPILER           =" ${CMAKE_CXX_COMPILER})
+    message(INFO " ** BOARD_CONFIG           =" ${ESP32_ARDUINO_BOARD_CONFIGS})
+    message(INFO " ** DEBUG                  =" ${OPTIMIZ_FLAGS})
+    message(INFO " ******************************************************************************************************************************************************* " )
+    message(INFO " ******************************************************************************************************************************************************* " )
+    message(INFO " ")
+endif(CMAKE_ESP_DEFINITION_DONE MATCHES "DISABLED")
+
+
+#-----------------------------------------------
+#   INCLUDE YOUR CODE HERE
+#-----------------------------------------------
 FILE(GLOB CPP_SOURCES source/*.cpp)
 FILE(GLOB CPP_HEADS *.h)
 FILE(GLOB C_SOURCES source/*.c)
-
-
-
-#set( SRC_CODE_CORE
-#  ${ARDUINO_CORE_SRC}/WInterrupts.c
-#)
-
-
-
-
 
 
 include_directories("${SDK_ESP_INCLUDE}/config")
@@ -265,21 +283,46 @@ add_executable(ArduinoExample  ${ESP_CORE_SRC_FILES}  ${CPP_HEADS} ${C_SOURCES} 
 set_target_properties(ArduinoExample PROPERTIES SUFFIX ".elf" LINK_FLAGS "  ")
 
 
-#add_custom_command( TARGET ArduinoExample POST_BUILD
-#  COMMAND "python"
-#  ARGS     "/Users/eric/Library/Arduino15/packages/esp32/hardware/esp32/1.0.1/tools/gen_esp32part.py" -q "/Users/eric/Library/Arduino15/packages/esp32/hardware/esp32/1.0.1/tools/partitions/default.csv" "${POJECT_NAME}.partitions.bin"
-#  COMMENT    "-------- Bin Partition Gen  ----------"
-#
-#  COMMAND "/Users/eric/Library/Arduino15/packages/esp32/tools/esptool_py/2.6.0/esptool" 
-#  ARGS  --chip esp32 elf2image --flash_mode "dio" --flash_freq "80m" --flash_size "4MB" -o "${POJECT_NAME}.bin" "${POJECT_NAME}.elf"
-#  COMMENT    "-------- ESPTOOL Bin  Gen  ----------"
-#
-#
-#  DEPENDS ArduinoExample.elf 
-#)
 
 
 
+
+add_custom_command( TARGET ArduinoExample POST_BUILD
+  COMMAND "python"
+  ARGS     "${ESP32_TOOLCHAIN_PATH}/tools/gen_esp32part.py" -q "${ESP32_TOOLCHAIN_PATH}/tools/partitions/default.csv" "${POJECT_NAME}.partitions.bin"
+  COMMENT    "-------- Bin Partition Gen  ----------"
+  DEPENDS ArduinoExample.elf 
+)
+
+
+
+
+add_custom_command( TARGET ArduinoExample POST_BUILD
+
+  COMMAND "${ESP32_TOOLCHAIN_PATH}/tools/esptool/esptool" 
+  ARGS  --chip esp32 elf2image --flash_mode "dio" --flash_freq "80m" --flash_size "4MB" -o "${POJECT_NAME}.bin" "${POJECT_NAME}.elf"
+  COMMENT    "-------- ESPTOOL Bin  Gen  ----------"
+
+  DEPENDS ArduinoExample.partitions.bin
+)
+
+set(ESP_FLASH_COMPORT "COM29")
+
+
+
+add_custom_target("flash")
+add_custom_command(TARGET "flash" POST_BUILD 
+  COMMAND "${ESP32_TOOLCHAIN_PATH}/tools/esptool/esptool" 
+  ARGS  --chip esp32 --port ${ESP_FLASH_COMPORT} --baud ${ESP_P_BRATE} --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0xe000 ${ESP_BOOT_BIN} 0x1000 ${ESP_BL_BIN} 0x10000 ${POJECT_NAME}.bin 0x8000 ${POJECT_NAME}.partitions.bin
+  COMMENT    "-------- Nada Bin  Gen  ----------"
+)
+
+add_custom_target("size")
+add_custom_command( TARGET size POST_BUILD
+  COMMAND "${CMAKE_BIN_SIZE}"
+  ARGS     -A ${POJECT_NAME}.elf
+  COMMENT    "-------- Get Bin SIZE  ----------"
+)
 
 #add_custom_command( OUTPUT AVR_DUDE_FLASH
 #  COMMAND ${AVR_DUDE}
@@ -290,7 +333,6 @@ set_target_properties(ArduinoExample PROPERTIES SUFFIX ".elf" LINK_FLAGS "  ")
 
 
 
-
-message(INFO "******************************************************")
-message(INFO " > " ${CMAKE_EXE_LINKER_FLAGS})
-message(INFO "******************************************************")
+#message(INFO "******************************************************")
+#message(INFO " > " ${CMAKE_EXE_LINKER_FLAGS})
+#message(INFO "******************************************************")
