@@ -1,0 +1,137 @@
+
+
+set (CMAKE_SYSTEM_NAME          ESP32)
+set (CMAKE_SYSTEM_PROCESSOR     "ESP32_MCU")
+set (ESP32_TOOLCHAIN_PATH       ../arduino-esp32)
+set (ESP32_TOOLCHAIN_SDK        tools/sdk)
+set (SDK_ESP_ROOT               ${ESP32_TOOLCHAIN_PATH}/${ESP32_TOOLCHAIN_SDK})
+set (ESP_32_SRC_CORE            ${ESP32_TOOLCHAIN_PATH}/cores/esp32)
+
+
+message(INFO " >--------------------- " ${ESP32_TOOLCHAIN_PATH})
+
+set (SDK_ESP_INCLUDE ${SDK_ESP_ROOT}/include)
+
+
+#set (COMPILER_PREFIX         ${ESP32_TOOLCHAIN_PATH}/tools/xtensa-esp32-elf-gcc/1.22.0-80-g6c4433a-5.2.0/bin/xtensa-esp32-elf-)
+set (COMPILER_PREFIX         ${ESP32_TOOLCHAIN_PATH}/tools/xtensa-esp32-elf/bin/xtensa-esp32-elf-)
+set (CMAKE_LINKER            "xtensa-esp32-elf-gcc.exe"      CACHE PATH "linker"  FORCE)
+
+set( CMAKE_CXX_LINK_EXECUTABLE "xtensa-esp32-elf-gcc.exe <LINK_FLAGS> <OBJECTS> <LINK_LIBRARIES> -Wl,--end-group -Wl,-EL -o <TARGET> ")
+#set( CMAKE_CXX_LINK_EXECUTABLE "xtensa-esp32-elf-gcc.exe  <OBJECTS> -Wl,--end-group -Wl,-EL -o <TARGET> ")
+
+set (CMAKE_C_COMPILER    xtensa-esp32-elf-gcc.exe)
+set (CMAKE_CXX_COMPILER  xtensa-esp32-elf-g++.exe)
+
+link_directories("${ESP32_TOOLCHAIN_PATH}${ESP32_TOOLCHAIN_SDK}/lib")
+link_directories("${ESP32_TOOLCHAIN_PATH}${ESP32_TOOLCHAIN_SDK}/ld")
+
+#
+#
+#
+set( ESP32_ARDUINO_BOARD_CONFIGS = \
+    "-DF_CPU=240000000L \
+     -DARDUINO=10805 \
+     -DARDUINO_ESP32_DEV \
+     -DARDUINO_ARCH_ESP32 \
+     -DARDUINO_BOARD=ESP32_DEV \
+     -DARDUINO_VARIANT=firebeetle32 \
+     -DESP32 \
+     -DCORE_DEBUG_LEVEL=0"
+)
+
+#*****************************************************************************
+#    LINKER FLAGS
+#*****************************************************************************
+set (CMAKE_EXE_LINKER_FLAGS
+    "-nostdlib \
+    -L${SDK_ESP_ROOT}/lib \
+    -L${SDK_ESP_ROOT}/ld \
+	-T esp32_out.ld \
+	-T esp32.project.ld \
+	-T esp32.rom.ld \
+	-T esp32.peripherals.ld \
+	-T esp32.rom.libgcc.ld \
+	-T esp32.rom.spiram_incompatible_fns.ld \
+    -u ld_include_panic_highint_hdl \
+    -u call_user_start_cpu0 \
+    -Wl,--gc-sections \
+    -Wl,-static \
+    -Wl,--undefined=uxTopUsedPriority \
+    -u __cxa_guard_dummy \
+    -u __cxx_fatal_exception \
+    -Wl,--start-group"
+)
+#*****************************************************************************
+#    DEBUG SYMBOLS FLAGS
+#*****************************************************************************
+
+#set (OPTIMIZ_FLAGS  "-Os -g3")
+ set (OPTIMIZ_FLAGS  "-Os -g0")
+
+#*****************************************************************************
+#    C-Compiler Flags
+#*****************************************************************************
+set (CMAKE_C_FLAGS
+   "-std=gnu99 \
+    ${OPTIMIZ_FLAGS} \
+    -fstack-protector \
+    -ffunction-sections \
+    -fdata-sections \
+    -fstrict-volatile-bitfields \
+    -mlongcalls \
+    -nostdlib \
+    -Wpointer-arith \
+    -w -Wno-error=unused-function \
+    -Wno-error=unused-but-set-variable \
+    -Wno-error=unused-variable \
+    -Wno-error=deprecated-declarations \
+    -Wno-unused-parameter \
+    -Wno-sign-compare \
+    -Wno-old-style-declaration \
+    -MMD \
+    -DF_CPU=240000000L \
+    -DARDUINO=10805 \
+    -DARDUINO_ESP32_DEV \
+    -DARDUINO_ARCH_ESP32 \
+    -DARDUINO_BOARD=ESP32_DEV \
+    -DARDUINO_VARIANT=firebeetle32 \
+    -DESP32 \
+    -DCORE_DEBUG_LEVEL=0"
+)
+
+#*****************************************************************************
+#    C++ Compiler Flags
+#*****************************************************************************
+set (CMAKE_CXX_FLAGS 
+    "-DESP_PLATFORM \
+    -DMBEDTLS_CONFIG_FILE=mbedtls/esp_config.h \
+    -DHAVE_CONFIG_H \
+    -std=gnu++11 \
+    -fno-exceptions \
+    ${OPTIMIZ_FLAGS} \
+    -Wpointer-arith \
+    -fexceptions \
+    -fstack-protector \
+    -ffunction-sections \
+    -fdata-sections \
+    -fstrict-volatile-bitfields \
+    -mlongcalls \
+    -nostdlib \
+    -w -Wno-error=unused-function \
+    -Wno-error=unused-but-set-variable \
+    -Wno-error=unused-variable \
+    -Wno-error=deprecated-declarations \
+    -Wno-unused-parameter \
+    -Wno-sign-compare \
+    -fno-rtti \
+    -MMD \
+    -DF_CPU=240000000L \
+    -DARDUINO=10805 \
+    -DARDUINO_ESP32_DEV \
+    -DARDUINO_ARCH_ESP32 \
+    -DARDUINO_BOARD=ESP32_DEV \
+    -DARDUINO_VARIANT=firebeetle32 \
+    -DESP32 \
+    -DCORE_DEBUG_LEVEL=0"
+)
