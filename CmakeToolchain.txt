@@ -93,6 +93,30 @@ set (OPTIMIZ_FLAGS  "-Os -g3")
 #*****************************************************************************
 #    C-Compiler Flags
 #*****************************************************************************
+#add_definitions(-DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\")
+
+#"-DESP_PLATFORM -DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\" \
+#-DF_CPU=240000000L \
+#-DARDUINO=10805 \
+#-DARDUINO_ESP32_DEV \
+#-DARDUINO_ARCH_ESP32 \
+#-DARDUINO_BOARD=ESP32_DEV \
+#-DARDUINO_VARIANT=firebeetle32 \
+#-DESP32 \
+#-DCORE_DEBUG_LEVEL=0 \
+
+add_definitions(-DESP_PLATFORM)
+add_definitions(-DMBEDTLS_CONFIG_FILE="mbedtls/esp_config.h")
+add_definitions(-DF_CPU=240000000L)
+add_definitions(-DARDUINO=10805)
+add_definitions(-DARDUINO_ESP32_DEV)
+add_definitions(-DARDUINO_ARCH_ESP32)
+add_definitions(-DARDUINO_BOARD=ESP32_DEV)
+add_definitions(-DARDUINO_VARIANT=firebeetle32)
+add_definitions(-DESP32)
+add_definitions(-DCORE_DEBUG_LEVEL=0)
+add_definitions(-DHAVE_CONFIG_H)
+
 set (CMAKE_C_FLAGS
    "-std=gnu99 \
     ${OPTIMIZ_FLAGS} \
@@ -110,25 +134,25 @@ set (CMAKE_C_FLAGS
     -Wno-unused-parameter \
     -Wno-sign-compare \
     -Wno-old-style-declaration \
-    -MMD \
-    -DF_CPU=240000000L \
-    -DARDUINO=10805 \
-    -DARDUINO_ESP32_DEV \
-    -DARDUINO_ARCH_ESP32 \
-    -DARDUINO_BOARD=ESP32_DEV \
-    -DARDUINO_VARIANT=firebeetle32 \
-    -DESP32 \
-    -DCORE_DEBUG_LEVEL=0"
+    -MMD"
 )
 
 #*****************************************************************************
 #    C++ Compiler Flags
 #*****************************************************************************
-set (CMAKE_CXX_FLAGS 
-    "-DESP_PLATFORM \
-    -DMBEDTLS_CONFIG_FILE=mbedtls/esp_config.h \
-    -DHAVE_CONFIG_H \
-    -std=gnu++11 \
+# "-DESP_PLATFORM \
+# -DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\" \
+# -DHAVE_CONFIG_H \
+# -DF_CPU=240000000L \
+# -DARDUINO=10805 \
+# -DARDUINO_ESP32_DEV \
+# -DARDUINO_ARCH_ESP32 \
+# -DARDUINO_BOARD=ESP32_DEV \
+# -DARDUINO_VARIANT=firebeetle32 \
+# -DESP32 \
+# -DCORE_DEBUG_LEVEL=0 \
+set (CMAKE_CXX_FLAGS
+    "-std=gnu++11 \
     -fno-exceptions \
     ${OPTIMIZ_FLAGS} \
     -Wpointer-arith \
@@ -146,13 +170,5 @@ set (CMAKE_CXX_FLAGS
     -Wno-unused-parameter \
     -Wno-sign-compare \
     -fno-rtti \
-    -MMD \
-    -DF_CPU=240000000L \
-    -DARDUINO=10805 \
-    -DARDUINO_ESP32_DEV \
-    -DARDUINO_ARCH_ESP32 \
-    -DARDUINO_BOARD=ESP32_DEV \
-    -DARDUINO_VARIANT=firebeetle32 \
-    -DESP32 \
-    -DCORE_DEBUG_LEVEL=0"
+    -MMD "
 )
