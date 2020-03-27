@@ -5,7 +5,7 @@ set (CMAKE_SYSTEM_PROCESSOR     "ESP32_MCU")
 set (CMAKE_SYSTEM_BOARD         "ESP-WROOM-32")
 
 #set (ESP32_TOOLCHAIN_PATH       ../arduino-esp32)
-set (ESP32_TOOLCHAIN_PATH       ${ESP_TOOLCHAIN_PATH})
+set (ESP32_TOOLCHAIN_PATH       C:/Users/esanch20/Documents/00_Projects/04_Git/IOT_ESP/arduino-esp32)
 set (ESP32_TOOLCHAIN_SDK        tools/sdk)
 set (SDK_ESP_ROOT               ${ESP32_TOOLCHAIN_PATH}/${ESP32_TOOLCHAIN_SDK})
 set (ESP_32_SRC_CORE            ${ESP32_TOOLCHAIN_PATH}/cores/esp32)
@@ -81,7 +81,7 @@ set (CMAKE_EXE_LINKER_FLAGS
     -Wl,--undefined=uxTopUsedPriority \
     -u __cxa_guard_dummy \
     -u __cxx_fatal_exception \
-    -Wl,--start-group"
+    -Wl,--start-group" CACHE STRING "" FORCE
 )
 #*****************************************************************************
 #    DEBUG SYMBOLS FLAGS
@@ -134,7 +134,7 @@ set (CMAKE_C_FLAGS
     -Wno-unused-parameter \
     -Wno-sign-compare \
     -Wno-old-style-declaration \
-    -MMD"
+    -MMD" CACHE STRING "" FORCE
 )
 
 #*****************************************************************************
@@ -170,5 +170,5 @@ set (CMAKE_CXX_FLAGS
     -Wno-unused-parameter \
     -Wno-sign-compare \
     -fno-rtti \
-    -MMD "
+    -MMD" CACHE STRING "" FORCE
 )

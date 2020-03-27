@@ -176,20 +176,61 @@ set( ESP_CORE_SRC_FILES
 )
 
 
-#add_library(WiFiClientSecure STATIC ${ESP32_WIFICLIENT_LIB_SRC})
+set_property(GLOBAL PROPERTY source_list_libs)
+
+
+function(add_ardu_lib libname)    
+    FILE(GLOB LIB_FUNC_SRC_H     ${ESP32_TOOLCHAIN_PATH}/libraries/${libname}/src/*.h)
+    FILE(GLOB LIB_FUNC_SRC_CXX   ${ESP32_TOOLCHAIN_PATH}/libraries/${libname}/src/*.cpp)
+    FILE(GLOB LIB_FUNC_SRC_C     ${ESP32_TOOLCHAIN_PATH}/libraries/${libname}/src/*.c)
+    #message(">>> Library: ${libname} ${LIB_FUNC_SRC_H} ${LIB_FUNC_SRC_CXX} ${LIB_FUNC_SRC_C} ") 
+    add_library(${libname} STATIC  ${LIB_FUNC_SRC_H} ${LIB_FUNC_SRC_CXX} ${LIB_FUNC_SRC_C} )
+    include_directories(${LIB_WIFICLI_SRC_CXX}/libraries/${libname}/src)
+    get_property(tmp GLOBAL PROPERTY source_list_libs)
+    set(tmp ${tmp} ${libname})
+    set_property(GLOBAL PROPERTY source_list_libs ${tmp})
+endfunction()
+
+function(add_link_lib targetName) 
+    get_property(tmp GLOBAL PROPERTY source_list_libs)
+    foreach(X IN LISTS tmp)
+      message(STATUS "******************************* LINK ( ${X} ) Library to ${targetName}")
+      target_link_libraries (${targetName} "${X}")
+    endforeach()
+    #
+endfunction() 
+
+
+get_property(LIB_SRC_LIST_ALL GLOBAL PROPERTY source_list)
+message(">>> Library: ${LIB_SRC_LIST_ALL}  ") 
+
+add_ardu_lib( WiFi )
+add_ardu_lib( WiFiClientSecure )
+
+#########################################################
+#
+##########################################################
+FILE(GLOB H_SOURCES_LPUB   PubSubClient/src/*.h)
+FILE(GLOB C_SOURCES_LPUB   PubSubClient/src/*.c)
+FILE(GLOB CXX_SOURCES_LPUB PubSubClient/src/*.cpp)
+add_library(PubSubClient  ${H_SOURCES_LPUB} ${C_SOURCES_LPUB} ${CXX_SOURCES_LPUB} )
+include_directories(PubSubClient/src)
+
+#   FILE(GLOB LIB_WIFICLI_SRC_H     ${ESP32_TOOLCHAIN_PATH}/libraries/WiFiClientSecure/src/*.h)
+#   FILE(GLOB LIB_WIFICLI_SRC_CXX   ${ESP32_TOOLCHAIN_PATH}/libraries/WiFiClientSecure/src/*.cpp)
+#   #add_definitions(-DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\")
+#   add_library(WiFiClientSecure  ${LIB_WIFICLI_SRC_H}  ${LIB_WIFICLI_SRC_CXX} )
+#   include_directories(${LIB_WIFICLI_SRC_CXX}/libraries/WiFiClientSecure/src)
+#   #add_library(CoreLib STATIC ${ESP_CORE_SRC_FILES})
+#   
+add_executable(ArduinoExample ${ESP_CORE_SRC_FILES}  ${CPP_HEADS} ${C_SOURCES} ${CPP_SOURCES}  ${SRC_CODE_CORE} ${ASSEMBLER_FILE} )
 
 
 
-
-
-
-
-
-#add_library(CoreLib STATIC ${ESP_CORE_SRC_FILES})
-
-add_executable(ArduinoExample  ${ESP_CORE_SRC_FILES}  ${CPP_HEADS} ${C_SOURCES} ${CPP_SOURCES}  ${SRC_CODE_CORE} ${ASSEMBLER_FILE} )
-
-
+target_link_libraries (ArduinoExample   PubSubClient )
+#add_link_lib(ArduinoExample)
+target_link_libraries (ArduinoExample   WiFi)
+target_link_libraries (ArduinoExample   WiFiClientSecure)
 
     
     target_link_libraries (ArduinoExample  gcc )
