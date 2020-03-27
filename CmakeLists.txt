@@ -1,23 +1,29 @@
 cmake_minimum_required(VERSION 3.00)
 
-set(POJECT_NAME ArduinoExample)
+INCLUDE("esp32_common.cmake")
+###################################################################################
+#    CONFIGURATION
+#    
+###################################################################################
+set(POJECT_NAME             ArduinoExample)
+set(ESP_FLASH_COMPORT       "COM29")
 
+
+# Add the Toolchain File
 set ( CMAKE_TOOLCHAIN_FILE          CmakeToolchain.txt)
 # set the project name
 project(${POJECT_NAME})
 
-# 2. force
-#set(CMAKE_EXE_LINKER_FLAGS " .... " CACHE INTERNAL "" FORCE)
-
-
+get_property(LIB_SRC_LIST_ALL GLOBAL PROPERTY source_list)
+set_property(GLOBAL PROPERTY source_list_libs)
 
 
 if(CMAKE_ESP_DEFINITION_DONE MATCHES "DISABLED")
     message(FATAL_ERROR,"*********************** !!! Board Not supported ,or not defined !!!!  :( !!!  ")
 else()
     message(INFO " ")
-    message(INFO " ******************************************************************************************************************************************************* " )
-    message(INFO " ******************************************************************************************************************************************************* " )
+    message(INFO " ****************************************************************************************************************************** " )
+    message(INFO " ****************************************************************************************************************************** " )
     message(INFO " ** SYSTEM_NAME            =" ${CMAKE_SYSTEM_NAME})
     message(INFO " ** PROCESSOR_NAME         =" ${CMAKE_SYSTEM_PROCESSOR})
     message(INFO " **<<<<<<<<<<<<<<<<<<<<<  BOARD SETTINGS & PROGRAMMER >>>>>>>>>>>>>>>>>>>>>>>>> ")
@@ -31,349 +37,142 @@ else()
     message(INFO " ** CXX_COMPILER           =" ${CMAKE_CXX_COMPILER})
     message(INFO " ** BOARD_CONFIG           =" ${ESP32_ARDUINO_BOARD_CONFIGS})
     message(INFO " ** DEBUG                  =" ${OPTIMIZ_FLAGS})
-    message(INFO " ******************************************************************************************************************************************************* " )
-    message(INFO " ******************************************************************************************************************************************************* " )
+    message(INFO " ********************************************************************************************************************************** " )
+    message(INFO " ********************************************************************************************************************************** " )
     message(INFO " ")
 endif(CMAKE_ESP_DEFINITION_DONE MATCHES "DISABLED")
 
 
 #-----------------------------------------------
-#   INCLUDE YOUR CODE HERE
+#   USER  CODE HERE
 #-----------------------------------------------
 FILE(GLOB CPP_SOURCES source/*.cpp)
 FILE(GLOB CPP_HEADS *.h)
 FILE(GLOB C_SOURCES source/*.c)
 
 
-include_directories("${SDK_ESP_INCLUDE}/config")
-include_directories("${SDK_ESP_INCLUDE}/app_trace")
-include_directories("${SDK_ESP_INCLUDE}/app_update")
-include_directories("${SDK_ESP_INCLUDE}/asio")
-include_directories("${SDK_ESP_INCLUDE}/bootloader_support")
-include_directories("${SDK_ESP_INCLUDE}/bt")
-include_directories("${SDK_ESP_INCLUDE}/coap")
-include_directories("${SDK_ESP_INCLUDE}/console")
-include_directories("${SDK_ESP_INCLUDE}/driver")
-include_directories("${SDK_ESP_INCLUDE}/esp-tls")
-include_directories("${SDK_ESP_INCLUDE}/esp32")
-include_directories("${SDK_ESP_INCLUDE}/esp_adc_cal")
-include_directories("${SDK_ESP_INCLUDE}/esp_event")
-include_directories("${SDK_ESP_INCLUDE}/esp_http_client")
-include_directories("${SDK_ESP_INCLUDE}/esp_http_server")
-include_directories("${SDK_ESP_INCLUDE}/esp_https_ota")
-include_directories("${SDK_ESP_INCLUDE}/esp_https_server")
-include_directories("${SDK_ESP_INCLUDE}/esp_ringbuf")
-include_directories("${SDK_ESP_INCLUDE}/ethernet")
-include_directories("${SDK_ESP_INCLUDE}/expat")
-include_directories("${SDK_ESP_INCLUDE}/fatfs")
-include_directories("${SDK_ESP_INCLUDE}/freemodbus")
-include_directories("${SDK_ESP_INCLUDE}/freertos")
-include_directories("${SDK_ESP_INCLUDE}/heap")
-include_directories("${SDK_ESP_INCLUDE}/idf_test")
-include_directories("${SDK_ESP_INCLUDE}/jsmn")
-include_directories("${SDK_ESP_INCLUDE}/json")
-include_directories("${SDK_ESP_INCLUDE}/libsodium")
-include_directories("${SDK_ESP_INCLUDE}/log")
-include_directories("${SDK_ESP_INCLUDE}/lwip")
-include_directories("${SDK_ESP_INCLUDE}/mbedtls")
-include_directories("${SDK_ESP_INCLUDE}/mdns")
-include_directories("${SDK_ESP_INCLUDE}/micro-ecc")
-include_directories("${SDK_ESP_INCLUDE}/mqtt")
-include_directories("${SDK_ESP_INCLUDE}/newlib")
-include_directories("${SDK_ESP_INCLUDE}/nghttp")
-include_directories("${SDK_ESP_INCLUDE}/nvs_flash")
-include_directories("${SDK_ESP_INCLUDE}/openssl")
-include_directories("${SDK_ESP_INCLUDE}/protobuf-c")
-include_directories("${SDK_ESP_INCLUDE}/protocomm")
-include_directories("${SDK_ESP_INCLUDE}/pthread")
-include_directories("${SDK_ESP_INCLUDE}/sdmmc")
-include_directories("${SDK_ESP_INCLUDE}/smartconfig_ack")
-include_directories("${SDK_ESP_INCLUDE}/soc")
-include_directories("${SDK_ESP_INCLUDE}/spi_flash")
-include_directories("${SDK_ESP_INCLUDE}/spiffs")
-include_directories("${SDK_ESP_INCLUDE}/tcp_transport")
-include_directories("${SDK_ESP_INCLUDE}/tcpip_adapter")
-include_directories("${SDK_ESP_INCLUDE}/ulp")
-include_directories("${SDK_ESP_INCLUDE}/unity")
-include_directories("${SDK_ESP_INCLUDE}/vfs")
-include_directories("${SDK_ESP_INCLUDE}/wear_levelling")
-include_directories("${SDK_ESP_INCLUDE}/wifi_provisioning")
-include_directories("${SDK_ESP_INCLUDE}/wpa_supplicant")
-include_directories("${SDK_ESP_INCLUDE}/xtensa-debug-module")
-include_directories("${SDK_ESP_INCLUDE}/esp32-camera")
-include_directories("${SDK_ESP_INCLUDE}/esp-face")
-include_directories("${SDK_ESP_INCLUDE}/fb_gfxinclude_directories")
+#-----------------------------------------------
+#   LIB SUPPORT AND CONFIGURATIONS
+#-----------------------------------------------
 
-include_directories("${ESP32_TOOLCHAIN_PATH}/cores/esp32")
-include_directories("${ESP32_TOOLCHAIN_PATH}/variants/firebeetle32")
-include_directories("${ESP32_TOOLCHAIN_PATH}/libraries/WiFiClientSecure/src")
-include_directories("${ESP32_TOOLCHAIN_PATH}/libraries/WiFi/src")
-#include_directories("/Users/eric/Documents/01_Development/libraries/PubSubClient/src")
+# Add all the Includes required by the Arduino Core
+add_arduino_Core_includes()
 
+# Add and compile the Libs included in the SDK
+#  add_ardu_lib( WiFi )
+#  add_ardu_lib( WiFiClientSecure )
 
-
-set(ESP32_CORE_LIB_SRC  ${ESP32_TOOLCHAIN_PATH}/libraries)
-
-set(ESP32_WIFICLIENT_SEC_SRC ${ESP32_CORE_LIB_SRC}/WiFiClientSecure/src/)
-set(ESP32_LIBS_SRC ${ESP32_CORE_LIB_SRC}/)
-
-
-
-
-
-set (ESP32_WIFICLIENT_LIB_SRC
-    ${ESP32_WIFICLIENT_SEC_SRC}WiFiClientSecure.cpp
-    ${ESP32_WIFICLIENT_SEC_SRC}ssl_client.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/ETH.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFi.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiAP.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiClient.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiGeneric.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiMulti.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiSTA.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiScan.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiServer.cpp
-    ${ESP32_LIBS_SRC}/WiFi/src/WiFiUdp.cpp
-)
-
-set( ESP_CORE_SRC_FILES
-    ${ESP_32_SRC_CORE}/Esp.cpp
-    ${ESP_32_SRC_CORE}/FunctionalInterrupt.cpp
-    ${ESP_32_SRC_CORE}/HardwareSerial.cpp
-    ${ESP_32_SRC_CORE}/IPAddress.cpp
-    ${ESP_32_SRC_CORE}/IPv6Address.cpp
-    ${ESP_32_SRC_CORE}/MD5Builder.cpp
-    ${ESP_32_SRC_CORE}/Print.cpp
-    ${ESP_32_SRC_CORE}/Stream.cpp
-    ${ESP_32_SRC_CORE}/StreamString.cpp
-    ${ESP_32_SRC_CORE}/WMath.cpp
-    ${ESP_32_SRC_CORE}/WString.cpp
-    ${ESP_32_SRC_CORE}/base64.cpp
-    ${ESP_32_SRC_CORE}/cbuf.cpp
-    ${ESP_32_SRC_CORE}/main.cpp
-    ${ESP_32_SRC_CORE}/esp32-hal-adc.c
-    ${ESP_32_SRC_CORE}/esp32-hal-bt.c
-    ${ESP_32_SRC_CORE}/esp32-hal-cpu.c
-    ${ESP_32_SRC_CORE}/esp32-hal-dac.c
-    ${ESP_32_SRC_CORE}/esp32-hal-gpio.c
-    ${ESP_32_SRC_CORE}/esp32-hal-i2c.c
-    ${ESP_32_SRC_CORE}/esp32-hal-ledc.c
-    ${ESP_32_SRC_CORE}/esp32-hal-matrix.c
-    ${ESP_32_SRC_CORE}/esp32-hal-misc.c
-    ${ESP_32_SRC_CORE}/esp32-hal-psram.c
-    ${ESP_32_SRC_CORE}/esp32-hal-rmt.c
-    ${ESP_32_SRC_CORE}/esp32-hal-sigmadelta.c
-    ${ESP_32_SRC_CORE}/esp32-hal-spi.c
-    ${ESP_32_SRC_CORE}/esp32-hal-time.c
-    ${ESP_32_SRC_CORE}/esp32-hal-timer.c
-    ${ESP_32_SRC_CORE}/esp32-hal-touch.c
-    ${ESP_32_SRC_CORE}/esp32-hal-uart.c
-    ${ESP_32_SRC_CORE}/stdlib_noniso.c
-    ${ESP_32_SRC_CORE}/wiring_pulse.c
-    ${ESP_32_SRC_CORE}/wiring_shift.c
-    ${ESP_32_SRC_CORE}/libb64/cdecode.c
-    ${ESP_32_SRC_CORE}/libb64/cencode.c    
-)
-
-
-set_property(GLOBAL PROPERTY source_list_libs)
-
-
-function(add_ardu_lib libname)    
-    FILE(GLOB LIB_FUNC_SRC_H     ${ESP32_TOOLCHAIN_PATH}/libraries/${libname}/src/*.h)
-    FILE(GLOB LIB_FUNC_SRC_CXX   ${ESP32_TOOLCHAIN_PATH}/libraries/${libname}/src/*.cpp)
-    FILE(GLOB LIB_FUNC_SRC_C     ${ESP32_TOOLCHAIN_PATH}/libraries/${libname}/src/*.c)
-    #message(">>> Library: ${libname} ${LIB_FUNC_SRC_H} ${LIB_FUNC_SRC_CXX} ${LIB_FUNC_SRC_C} ") 
-    add_library(${libname} STATIC  ${LIB_FUNC_SRC_H} ${LIB_FUNC_SRC_CXX} ${LIB_FUNC_SRC_C} )
-    include_directories(${LIB_WIFICLI_SRC_CXX}/libraries/${libname}/src)
-    get_property(tmp GLOBAL PROPERTY source_list_libs)
-    set(tmp ${tmp} ${libname})
-    set_property(GLOBAL PROPERTY source_list_libs ${tmp})
-endfunction()
-
-function(add_link_lib targetName) 
-    get_property(tmp GLOBAL PROPERTY source_list_libs)
-    foreach(X IN LISTS tmp)
-      message(STATUS "******************************* LINK ( ${X} ) Library to ${targetName}")
-      target_link_libraries (${targetName} "${X}")
-    endforeach()
-    #
-endfunction() 
-
-
-get_property(LIB_SRC_LIST_ALL GLOBAL PROPERTY source_list)
-message(">>> Library: ${LIB_SRC_LIST_ALL}  ") 
-
-add_ardu_lib( WiFi )
-add_ardu_lib( WiFiClientSecure )
+# Add and compile the Libs with a Custom PATH
+#  add_arduino_external_lib(PubSubClient "./")
 
 #########################################################
-#
+#  ADD THE TARGET
 ##########################################################
-FILE(GLOB H_SOURCES_LPUB   PubSubClient/src/*.h)
-FILE(GLOB C_SOURCES_LPUB   PubSubClient/src/*.c)
-FILE(GLOB CXX_SOURCES_LPUB PubSubClient/src/*.cpp)
-add_library(PubSubClient  ${H_SOURCES_LPUB} ${C_SOURCES_LPUB} ${CXX_SOURCES_LPUB} )
-include_directories(PubSubClient/src)
-
-#   FILE(GLOB LIB_WIFICLI_SRC_H     ${ESP32_TOOLCHAIN_PATH}/libraries/WiFiClientSecure/src/*.h)
-#   FILE(GLOB LIB_WIFICLI_SRC_CXX   ${ESP32_TOOLCHAIN_PATH}/libraries/WiFiClientSecure/src/*.cpp)
-#   #add_definitions(-DMBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\")
-#   add_library(WiFiClientSecure  ${LIB_WIFICLI_SRC_H}  ${LIB_WIFICLI_SRC_CXX} )
-#   include_directories(${LIB_WIFICLI_SRC_CXX}/libraries/WiFiClientSecure/src)
-#   #add_library(CoreLib STATIC ${ESP_CORE_SRC_FILES})
-#   
-add_executable(ArduinoExample ${ESP_CORE_SRC_FILES}  ${CPP_HEADS} ${C_SOURCES} ${CPP_SOURCES}  ${SRC_CODE_CORE} ${ASSEMBLER_FILE} )
+add_executable(${POJECT_NAME}   ${CPP_HEADS} ${C_SOURCES} ${CPP_SOURCES}  ${SRC_CODE_CORE} ${ASSEMBLER_FILE} )
+set_target_properties(${POJECT_NAME} PROPERTIES SUFFIX ".elf" LINK_FLAGS "  ")
 
 
 
-target_link_libraries (ArduinoExample   PubSubClient )
-#add_link_lib(ArduinoExample)
-target_link_libraries (ArduinoExample   WiFi)
-target_link_libraries (ArduinoExample   WiFiClientSecure)
+
+
+add_arduino_Core_Config(${POJECT_NAME})
+add_link_lib(${POJECT_NAME}) 
 
     
-    target_link_libraries (ArduinoExample  gcc )
-    target_link_libraries (ArduinoExample  freertos )
-    target_link_libraries (ArduinoExample  mesh )
-    target_link_libraries (ArduinoExample  od )
-    target_link_libraries (ArduinoExample  wear_levelling )
-    target_link_libraries (ArduinoExample  fb_gfx )
-    target_link_libraries (ArduinoExample  esp_adc_cal )
-    target_link_libraries (ArduinoExample  c_nano )
-    target_link_libraries (ArduinoExample  esp32 )
-    target_link_libraries (ArduinoExample  driver )
-    target_link_libraries (ArduinoExample  hal )
-    target_link_libraries (ArduinoExample  jsmn )
-    target_link_libraries (ArduinoExample  smartconfig )
-    target_link_libraries (ArduinoExample  esp_http_server )
-    target_link_libraries (ArduinoExample  protocomm )
-    target_link_libraries (ArduinoExample  face_recognition )
-    target_link_libraries (ArduinoExample  espnow )
-    target_link_libraries (ArduinoExample  tcpip_adapter )
-    target_link_libraries (ArduinoExample  face_detection )
-    target_link_libraries (ArduinoExample  unity )
-    target_link_libraries (ArduinoExample  c )
-    target_link_libraries (ArduinoExample  libsodium )
-    target_link_libraries (ArduinoExample  esp_http_client )
-    target_link_libraries (ArduinoExample  app_update )
-    target_link_libraries (ArduinoExample  newlib )
-    target_link_libraries (ArduinoExample  cxx )
-    target_link_libraries (ArduinoExample  tcp_transport )
-    target_link_libraries (ArduinoExample  m )
-    target_link_libraries (ArduinoExample  efuse )
-    target_link_libraries (ArduinoExample  openssl )
-    target_link_libraries (ArduinoExample  wifi_provisioning )
-    target_link_libraries (ArduinoExample  espcoredump )
-    target_link_libraries (ArduinoExample  log )
-    target_link_libraries (ArduinoExample  mbedtls )
-    target_link_libraries (ArduinoExample  esp_ringbuf )
-    target_link_libraries (ArduinoExample  wps )
-    target_link_libraries (ArduinoExample  net80211 )
-    target_link_libraries (ArduinoExample  mqtt )
-    target_link_libraries (ArduinoExample  esp_https_server )
-    target_link_libraries (ArduinoExample  app_trace )
-    target_link_libraries (ArduinoExample  esp_event )
-    target_link_libraries (ArduinoExample  esp32-camera )
-    target_link_libraries (ArduinoExample  soc )
-    target_link_libraries (ArduinoExample  heap )
-    target_link_libraries (ArduinoExample  lwip )
-    target_link_libraries (ArduinoExample  wpa )
-    target_link_libraries (ArduinoExample  rtc )
-    target_link_libraries (ArduinoExample  xtensa-debug-module )
-    target_link_libraries (ArduinoExample  spi_flash )
-    target_link_libraries (ArduinoExample  phy )
-    target_link_libraries (ArduinoExample  fr )
-    target_link_libraries (ArduinoExample  console )
-    target_link_libraries (ArduinoExample  coap )
-    target_link_libraries (ArduinoExample  btdm_app )
-    target_link_libraries (ArduinoExample  sdmmc )
-    target_link_libraries (ArduinoExample  fd )
-    target_link_libraries (ArduinoExample  micro-ecc )
-    target_link_libraries (ArduinoExample  json )
-    target_link_libraries (ArduinoExample  core )
-    target_link_libraries (ArduinoExample  protobuf-c )
-    target_link_libraries (ArduinoExample  ethernet )
-    target_link_libraries (ArduinoExample  spiffs )
-    target_link_libraries (ArduinoExample  nvs_flash )
-    target_link_libraries (ArduinoExample  wpa_supplicant )
-    target_link_libraries (ArduinoExample  vfs )
-    target_link_libraries (ArduinoExample  asio )
-    target_link_libraries (ArduinoExample  wpa2 )
-    target_link_libraries (ArduinoExample  pp )
-    target_link_libraries (ArduinoExample  bootloader_support )
-    target_link_libraries (ArduinoExample  image_util )
-    target_link_libraries (ArduinoExample  dl_lib )
-    target_link_libraries (ArduinoExample  ulp )
-    target_link_libraries (ArduinoExample  nghttp )
-    target_link_libraries (ArduinoExample  pthread )
-    target_link_libraries (ArduinoExample  freemodbus )
-    target_link_libraries (ArduinoExample  expat )
-    target_link_libraries (ArduinoExample  fatfs )
-    target_link_libraries (ArduinoExample  smartconfig_ack )
-    target_link_libraries (ArduinoExample  mdns )
-    target_link_libraries (ArduinoExample  coexist )
-    target_link_libraries (ArduinoExample  esp-tls )
-    target_link_libraries (ArduinoExample  esp_https_ota )
-    target_link_libraries (ArduinoExample  bt  )
-    target_link_libraries (ArduinoExample  stdc++ )
-
-
-
-
-set_target_properties(ArduinoExample PROPERTIES SUFFIX ".elf" LINK_FLAGS "  ")
+add_arduino_Core_library(${POJECT_NAME}   gcc                     enable )
+add_arduino_Core_library(${POJECT_NAME}   freertos                enable )
+add_arduino_Core_library(${POJECT_NAME}   mesh                    enable )
+add_arduino_Core_library(${POJECT_NAME}   od                      enable )
+add_arduino_Core_library(${POJECT_NAME}   wear_levelling          enable )
+add_arduino_Core_library(${POJECT_NAME}   fb_gfx                  enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_adc_cal             enable )
+add_arduino_Core_library(${POJECT_NAME}   c_nano                  enable )
+add_arduino_Core_library(${POJECT_NAME}   esp32                   enable )
+add_arduino_Core_library(${POJECT_NAME}   driver                  enable )
+add_arduino_Core_library(${POJECT_NAME}   hal                     enable )
+add_arduino_Core_library(${POJECT_NAME}   jsmn                    enable )
+add_arduino_Core_library(${POJECT_NAME}   smartconfig             enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_http_server         enable )
+add_arduino_Core_library(${POJECT_NAME}   protocomm               enable )
+add_arduino_Core_library(${POJECT_NAME}   face_recognition        enable )
+add_arduino_Core_library(${POJECT_NAME}   espnow                  enable )
+add_arduino_Core_library(${POJECT_NAME}   tcpip_adapter           enable )
+add_arduino_Core_library(${POJECT_NAME}   face_detection          enable )
+add_arduino_Core_library(${POJECT_NAME}   unity                   enable )
+add_arduino_Core_library(${POJECT_NAME}   c                       enable )
+add_arduino_Core_library(${POJECT_NAME}   libsodium               enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_http_client         enable )
+add_arduino_Core_library(${POJECT_NAME}   app_update              enable )
+add_arduino_Core_library(${POJECT_NAME}   newlib                  enable )
+add_arduino_Core_library(${POJECT_NAME}   cxx                     enable )
+add_arduino_Core_library(${POJECT_NAME}   tcp_transport           enable )
+add_arduino_Core_library(${POJECT_NAME}   m                       enable )
+add_arduino_Core_library(${POJECT_NAME}   efuse                   enable )
+add_arduino_Core_library(${POJECT_NAME}   openssl                 enable )
+add_arduino_Core_library(${POJECT_NAME}   wifi_provisioning       enable )
+add_arduino_Core_library(${POJECT_NAME}   espcoredump             enable )
+add_arduino_Core_library(${POJECT_NAME}   log                     enable )
+add_arduino_Core_library(${POJECT_NAME}   mbedtls                 enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_ringbuf             enable )
+add_arduino_Core_library(${POJECT_NAME}   wps                     enable )
+add_arduino_Core_library(${POJECT_NAME}   net80211                enable )
+add_arduino_Core_library(${POJECT_NAME}   mqtt                    enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_https_server        enable )
+add_arduino_Core_library(${POJECT_NAME}   app_trace               enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_event               enable )
+add_arduino_Core_library(${POJECT_NAME}   esp32-camera            enable )
+add_arduino_Core_library(${POJECT_NAME}   soc                     enable )
+add_arduino_Core_library(${POJECT_NAME}   heap                    enable )
+add_arduino_Core_library(${POJECT_NAME}   lwip                    enable )
+add_arduino_Core_library(${POJECT_NAME}   wpa                     enable )
+add_arduino_Core_library(${POJECT_NAME}   rtc                     enable )
+add_arduino_Core_library(${POJECT_NAME}   xtensa-debug-module     enable )
+add_arduino_Core_library(${POJECT_NAME}   spi_flash               enable )
+add_arduino_Core_library(${POJECT_NAME}   phy                     enable )
+add_arduino_Core_library(${POJECT_NAME}   fr                      enable )
+add_arduino_Core_library(${POJECT_NAME}   console                 enable )
+add_arduino_Core_library(${POJECT_NAME}   coap                    enable )
+add_arduino_Core_library(${POJECT_NAME}   btdm_app                enable )
+add_arduino_Core_library(${POJECT_NAME}   sdmmc                   enable )
+add_arduino_Core_library(${POJECT_NAME}   fd                      enable )
+add_arduino_Core_library(${POJECT_NAME}   micro-ecc               enable )
+add_arduino_Core_library(${POJECT_NAME}   json                    enable )
+add_arduino_Core_library(${POJECT_NAME}   core                    enable )
+add_arduino_Core_library(${POJECT_NAME}   protobuf-c              enable )
+add_arduino_Core_library(${POJECT_NAME}   ethernet                enable )
+add_arduino_Core_library(${POJECT_NAME}   spiffs                  enable )
+add_arduino_Core_library(${POJECT_NAME}   nvs_flash               enable )
+add_arduino_Core_library(${POJECT_NAME}   wpa_supplicant          enable )
+add_arduino_Core_library(${POJECT_NAME}   vfs                     enable )
+add_arduino_Core_library(${POJECT_NAME}   asio                    enable )
+add_arduino_Core_library(${POJECT_NAME}   wpa2                    enable )
+add_arduino_Core_library(${POJECT_NAME}   pp                      enable )
+add_arduino_Core_library(${POJECT_NAME}   bootloader_support      enable )
+add_arduino_Core_library(${POJECT_NAME}   image_util              enable )
+add_arduino_Core_library(${POJECT_NAME}   dl_lib                  enable )
+add_arduino_Core_library(${POJECT_NAME}   ulp                     enable )
+add_arduino_Core_library(${POJECT_NAME}   nghttp                  enable )
+add_arduino_Core_library(${POJECT_NAME}   pthread                 enable )
+add_arduino_Core_library(${POJECT_NAME}   freemodbus              enable )
+add_arduino_Core_library(${POJECT_NAME}   expat                   enable )
+add_arduino_Core_library(${POJECT_NAME}   fatfs                   enable )
+add_arduino_Core_library(${POJECT_NAME}   smartconfig_ack         enable )
+add_arduino_Core_library(${POJECT_NAME}   mdns                    enable )
+add_arduino_Core_library(${POJECT_NAME}   coexist                 enable )
+add_arduino_Core_library(${POJECT_NAME}   esp-tls                 enable )
+add_arduino_Core_library(${POJECT_NAME}   esp_https_ota           enable )
+add_arduino_Core_library(${POJECT_NAME}   bt                      enable )
+add_arduino_Core_library(${POJECT_NAME}   stdc++                  enable )
 
 
 
 
 
-
-add_custom_command( TARGET ArduinoExample POST_BUILD
-  COMMAND "python"
-  ARGS     "${ESP32_TOOLCHAIN_PATH}/tools/gen_esp32part.py" -q "${ESP32_TOOLCHAIN_PATH}/tools/partitions/default.csv" "${POJECT_NAME}.partitions.bin"
-  COMMENT    "-------- Bin Partition Gen  ----------"
-  DEPENDS ArduinoExample.elf 
-)
+###########################################################################################
+#   ENABLE FLASHING AND ESPTOOL SUPPORT
+###########################################################################################
+configure_esptool_function(${POJECT_NAME})
+configure_esptool_flashing(${POJECT_NAME})
 
 
 
-
-add_custom_command( TARGET ArduinoExample POST_BUILD
-
-  COMMAND "${ESP32_TOOLCHAIN_PATH}/tools/esptool/esptool" 
-  ARGS  --chip esp32 elf2image --flash_mode "dio" --flash_freq "80m" --flash_size "4MB" -o "${POJECT_NAME}.bin" "${POJECT_NAME}.elf"
-  COMMENT    "-------- ESPTOOL Bin  Gen  ----------"
-
-  DEPENDS ArduinoExample.partitions.bin
-)
-
-set(ESP_FLASH_COMPORT "COM29")
-
-
-
-add_custom_target("flash")
-add_custom_command(TARGET "flash" POST_BUILD 
-  COMMAND "${ESP32_TOOLCHAIN_PATH}/tools/esptool/esptool" 
-  ARGS  --chip esp32 --port ${ESP_FLASH_COMPORT} --baud ${ESP_P_BRATE} --before default_reset --after hard_reset write_flash -z --flash_mode dio --flash_freq 80m --flash_size detect 0xe000 ${ESP_BOOT_BIN} 0x1000 ${ESP_BL_BIN} 0x10000 ${POJECT_NAME}.bin 0x8000 ${POJECT_NAME}.partitions.bin
-  COMMENT    "-------- Nada Bin  Gen  ----------"
-)
-
-add_custom_target("size")
-add_custom_command( TARGET size POST_BUILD
-  COMMAND "${CMAKE_BIN_SIZE}"
-  ARGS     -A ${POJECT_NAME}.elf
-  COMMENT    "-------- Get Bin SIZE  ----------"
-)
-
-#add_custom_command( OUTPUT AVR_DUDE_FLASH
-#  COMMAND ${AVR_DUDE}
-#  ARGS    ${AVR_DUDE_CONFIG} -v -patmega328p -carduino -P/dev/cu.wchusbserialfa130 -b57600 -D -Uflash:w:ArduinoExample.hex:i 
-#)
-#add_custom_target(upload DEPENDS AVR_DUDE_FLASH)
-
-
-
-
-#message(INFO "******************************************************")
-#message(INFO " > " ${CMAKE_EXE_LINKER_FLAGS})
-#message(INFO "******************************************************")
